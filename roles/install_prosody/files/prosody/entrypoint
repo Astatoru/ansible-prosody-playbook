@@ -1,0 +1,52 @@
+#!/bin/bash
+# vim:ft=bash
+set -o "errexit"
+
+declare DATA_DIR_OWNER="$(stat -c %u "/var/lib/prosody/")"
+declare MODULE_DIR="/var/lib/prosody/custom_plugins/share/lua/5.4"
+declare -a MODULES=(
+  "firewall"
+  "block_registrations"
+  "spam_reporting"
+  "watch_spam_reports"
+  "muc_limits"
+)
+
+# Set permissions
+if [[ "$(id -u prosody)" != "$DATA_DIR_OWNER" ]]; then
+  # FIXME this fails if owned by root
+  usermod -u "$DATA_DIR_OWNER" prosody
+fi
+if [[ "$(stat -c %u /var/run/prosody/)" != "$DATA_DIR_OWNER" ]]; then
+  chown "$DATA_DIR_OWNER" "/var/run/prosody/"
+fi
+
+if [[ "$1" != "prosody" ]]; then
+  exec prosodyctl "$@"
+  exit 0
+fi
+
+# Import certificates to Prosody
+if [[ -d "/etc/letsencrypt/live" ]]; then
+  prosodyctl --root cert import "/etc/letsencrypt/live"
+else
+  printf "%s\n" "Certificates directory doesn't exist"
+  exit 1
+fi
+
+# Register admin user
+if [[ "$USERNAME" && "$VHOST" && "$PASSWORD" ]]; then
+  prosodyctl register "$USERNAME" "$VHOST" "$PASSWORD"
+fi
+
+# Install modules
+for MODULE in "${MODULES[@]}"; do
+  # If you don't want to update modules each time prosody launches
+  # Uncomment this conditional statement
+  # if [[ ! -e "$MODULE_DIR/mod_$MODULE.lua" ]]; then
+    prosodyctl install --server=https://modules.prosody.im/rocks/ mod_"$MODULE"
+  # fi
+done
+
+# Run Prosody
+exec runuser -u prosody -- "$@"

@@ -1,0 +1,37 @@
+# vim:ft=dockerfile
+FROM debian:trixie-slim
+
+ARG PROSODY_PACKAGE=prosody-{{ prosody_ver }}
+ARG LUA_PACKAGE=lua{{ lua_ver }}
+
+ADD https://prosody.im/downloads/repos/trixie/prosody.sources /etc/apt/sources.list.d/prosody.sources
+
+RUN apt-get update \
+  && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    tini \
+    ${PROSODY_PACKAGE} \
+    ${LUA_PACKAGE} \
+    ca-certificates \
+    dns-root-data \
+    lua-unbound \
+    lua-sec \
+    lua-readline \
+    lua-socket \
+    lua-dbi-postgresql \
+    luarocks \
+    lib${LUA_PACKAGE}-dev \
+    libjs-bootstrap4 \
+    libjs-jquery \
+    lua-geoip \
+  && update-alternatives --set lua-interpreter /usr/bin/${LUA_PACKAGE} \
+  && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /etc/prosody/conf.d /var/run/prosody \
+  && chown prosody:prosody /etc/prosody/conf.d /var/run/prosody
+
+COPY ./entrypoint /entrypoint
+RUN chmod 755 /entrypoint
+ENTRYPOINT ["/usr/bin/tini", "--", "/entrypoint"]
+
+ENV __FLUSH_LOG=yes
+CMD ["prosody", "-F"]

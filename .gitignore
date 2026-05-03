@@ -1,0 +1,8 @@
+**/.ansible/
+**/.env/
+**/roles_galaxy/
+**/collections_galaxy/
+**/credentials/
+inventories/inventory.yaml
+defaults/main.yaml
+defaults/optional.yaml

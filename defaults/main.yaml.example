@@ -1,0 +1,84 @@
+# vim:ft=yaml
+### Playbook
+# Which hosts from "inventory/inventory.yaml" will be targeted
+target_hosts: "all"
+# Remote server username
+user: "root"
+# Directory where all config files will be copied to
+config_dir: "{{ ansible_facts['user_dir'] }}/xmpp"
+
+### Prosody
+# Domain on which user accounts will be created
+vhost: "example.com"
+# Domain for muc (multi-user chat) module
+# muc module disables itself if the variable is empty or commented out
+muc_host: "conference.example.com"
+# Domain for http_file_share module
+# http_file_share module disables itself if the variable is empty or commented out
+upload_host: "share.example.com"
+# Server operator username
+username: "operator"
+# Operator password
+# Password is generated automatically
+# if the variable is empty or commented out
+password: ""
+# Toggle registration
+allow_registration: true
+# Toggle invite only registration
+invite_only: true
+# Welcome message that is sent to new users
+# Leave this variable empty or comment it out to disable
+welcome_message: |-
+  Welcome, $$username! You're now part of the $$host XMPP instance. We’ll use this chat to keep you informed about important technical updates and server maintenance.
+
+  Need help? The instance operator is always available at xmpp:${OPERATOR}. Enjoy!
+# Message that is sent to server operator when new user is registered
+# Leave this variable empty or comment it out to disable
+registration_message: |-
+  User $$username registered on $$host with IP address $$ip
+# Ports on which Prosody will listen for XMPP over TLS client connections
+c2s_xmpp_port: 5223
+# Ports on which Prosody will listen for XMPP over TLS server-to-server connections
+s2s_xmpp_port: 5270
+# Toggle server-to-server connections
+s2s: true
+# Ports on which builtin HTTP(s) server will listen
+http_server_port: 5281
+
+### Coturn
+# Install and configure Coturn
+install_coturn: true
+# Coturn domain
+turn_host: "turn.example.com"
+# Coturn port
+turn_port: 5349
+
+### Firewalld
+# Open necessary ports with firewalld
+configure_firewalld: false
+
+### Certbot
+# Automatically obtain certificates for all necessary domains using Certbot
+obtain_certificates: true
+# Email for Certbot account
+# Certbot obtains certificates without email
+# If the variable is empty or commented out
+email: ""
+
+### PostgreSQL
+# Database name
+postgres_db: "prosody"
+# Database user
+postgres_user: "prosody"
+
+### Versions
+# Change at your own risk!
+# Prosody package version that installs
+# during Prosody image build
+prosody_ver: 13.0
+# Lua package version that installs
+# during Prosody image build
+lua_ver: 5.4
+# PostgreSQL image version
+postgres_ver: 18.3
+# Coturn and Certbot are always using latest image versions

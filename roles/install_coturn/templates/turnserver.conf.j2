@@ -1,0 +1,158 @@
+# vim:ft=conf
+# The default realm to be used for the users when no explicit
+# origin/realm relationship is found in the database, or if the TURN
+# server is not using any database (just the commands-line settings
+# and the userdb file). Must be used with long-term credentials
+# mechanism or with TURN REST API.
+#
+# Note: If the default realm is not specified, then realm falls back to the host domain name.
+#       If the domain name string is empty, or set to '(None)', then it is initialized as an empty string.
+#
+realm={{ turn_host }}
+
+# Certificate file.
+# Use an absolute path or path relative to the
+# configuration file.
+# Use PEM file format.
+#
+cert=/etc/letsencrypt/live/{{ turn_host.split('.')[-2:] | join('.') }}/fullchain.pem
+
+# Private key file.
+# Use an absolute path or path relative to the
+# configuration file.
+# Use PEM file format.
+#
+pkey=/etc/letsencrypt/live/{{ turn_host.split('.')[-2:] | join('.') }}/privkey.pem
+
+# Listener IP address of relay server. Multiple listeners can be specified.
+# If no IP(s) specified in the config file or in the command line options,
+# then all IPv4 and IPv6 system IPs will be used for listening.
+#
+listening-ip=::
+
+# TURN listener port for TLS (Default: 5349).
+# Note: actually, "plain" TCP & UDP sessions can connect to the TLS & DTLS
+# port(s), too - if allowed by configuration. The TURN server
+# "automatically" recognizes the type of traffic. Actually, two listening
+# endpoints (the "plain" one and the "tls" one) are equivalent in terms of
+# functionality; but Coturn keeps both endpoints to satisfy the RFC 5766 specs.
+# For secure TCP connections, Coturn currently supports SSL version 3 and
+# TLS version 1.0, 1.1 and 1.2.
+# For secure UDP connections, Coturn supports DTLS version 1.
+#
+tls-listening-port={{ turn_port }}
+
+# Lower and upper bounds of the UDP relay endpoints:
+# (default values are 49152 and 65535)
+#
+min-port=49152
+max-port=65535
+
+# TURN server allocates address family according TURN client requested address family.
+# If address family not requested explicitly by the client, then it falls back to this default.
+# The standard RFC explicitly define that this default must be IPv4,
+# so use other option values with care!
+# Possible values: "ipv4" or "ipv6" or "keep"
+# "keep" sets the allocation default address family according to
+# the TURN client allocation request connection address family.
+#
+allocation-default-address-family=keep
+
+# Uncomment to use fingerprints in the TURN messages.
+# By default the fingerprints are off.
+#
+fingerprint
+
+# TURN REST API flag.
+# (Time Limited Long Term Credential)
+# Flag that sets a special authorization option that is based upon authentication secret.
+#
+# This feature's purpose is to support "TURN Server REST API", see
+# "TURN REST API" link in the project's page
+# https://github.com/coturn/coturn/
+#
+# This option is used with timestamp:
+#
+# usercombo -> "timestamp:userid"
+# turn user -> usercombo
+# turn password -> base64(hmac(secret key, usercombo))
+#
+# This allows TURN credentials to be accounted for a specific user id.
+# If you don't have a suitable id, then the timestamp alone can be used.
+# This option is enabled by turning on secret-based authentication.
+# The actual value of the secret is defined either by the option static-auth-secret,
+# or can be found in the turn_secret table in the database (see below).
+#
+# Read more about it:
+#  - https://tools.ietf.org/html/draft-uberti-behave-turn-rest-00
+#  - https://www.ietf.org/proceedings/87/slides/slides-87-behave-10.pdf
+#
+# Be aware that use-auth-secret overrides some parts of lt-cred-mech.
+# The use-auth-secret feature depends internally on lt-cred-mech, so if you set
+# this option then it automatically enables lt-cred-mech internally
+# as if you had enabled both.
+#
+# Note that you can use only one auth mechanism at the same time! This is because,
+# both mechanisms conduct username and password validation in different ways.
+#
+# Use either lt-cred-mech or use-auth-secret in the conf
+# to avoid any confusion.
+#
+use-auth-secret
+
+# 'Static' authentication secret value (a string) for TURN REST API only.
+# If not set, then the turn server
+# will try to use the 'dynamic' value in the turn_secret table
+# in the user database (if present). The database-stored  value can be changed on-the-fly
+# by a separate program, so this is why that mode is considered 'dynamic'.
+#
+static-auth-secret={{ turn_secret }}
+
+# This flag sets the origin consistency
+# check. Across the session, all requests must have the same
+# main ORIGIN attribute value (if the ORIGIN was
+# initially used by the session).
+#
+check-origin-consistency
+
+# Flag that can be used to disallow peers on well-known broadcast addresses (224.0.0.0 and above, and FFXX:*).
+# This is an extra security measure.
+#
+no-multicast-peers
+
+# Uncomment if extra security is desired,
+# with nonce value having a limited lifetime.
+# The nonce value is unique for a session.
+# Set this option to limit the nonce lifetime.
+# Set it to 0 for unlimited lifetime.
+# It defaults to 600 secs (10 min) if no value is provided. After that delay,
+# the client will get 438 error and will have to re-authenticate itself.
+#
+stale-nonce=300
+
+# Option to allow or ban specific ip addresses or ranges of ip addresses.
+# If an ip address is specified as both allowed and denied, then the ip address is
+# considered to be allowed. This is useful when you wish to ban a range of ip
+# addresses, except for a few specific ips within that range.
+#
+# This can be used when you do not want users of the turn server to be able to access
+# machines reachable by the turn server, but would otherwise be unreachable from the
+# internet (e.g. when the turn server is sitting behind a NAT)
+denied-peer-ip=10.0.0.0-10.255.255.255
+denied-peer-ip=172.16.0.0-172.31.255.255
+denied-peer-ip=192.168.0.0-192.168.255.255
+denied-peer-ip=127.0.0.0-127.255.255.255
+denied-peer-ip=169.254.0.0-169.254.255.255
+
+# Allowed OpenSSL cipher list for TLS/DTLS connections.
+# Default value is "DEFAULT".
+#
+cipher-list="ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305"
+
+# Curve name for EC ciphers, if supported by OpenSSL
+# library (TLS and DTLS). The default value is prime256v1,
+# if pre-OpenSSL 1.0.2 is used. With OpenSSL 1.0.2+,
+# an optimal curve will be automatically calculated, if not defined
+# by this option.
+#
+ec-curve-name="X25519"

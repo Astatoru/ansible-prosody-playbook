@@ -1,0 +1,5 @@
+# vim:ft=yaml.ansible
+---
+- name: Reload firewalld
+  ansible.builtin.command: firewall-cmd --reload
+  listen: reload_firewalld

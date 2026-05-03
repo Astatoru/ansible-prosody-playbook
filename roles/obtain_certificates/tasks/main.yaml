@@ -1,0 +1,28 @@
+# vim:ft=yaml.ansible
+---
+- name: Create Certbot directory
+  ansible.builtin.file:
+    path: "{{ config_dir }}/certbot/"
+    owner: "{{ ansible_facts['user_id'] }}"
+    group: "{{ ansible_facts['user_id'] }}"
+    mode: "0755"
+    state: directory
+- name: Copy Certbot docker compose template
+  ansible.builtin.template:
+    src: compose.yaml.j2
+    dest: "{{ config_dir }}/certbot/compose.yaml"
+    owner: "{{ ansible_facts['user_id'] }}"
+    group: "{{ ansible_facts['user_id'] }}"
+    mode: preserve
+- name: Copy .env template
+  ansible.builtin.template:
+    src: .env.j2
+    dest: "{{ config_dir }}/certbot/.env"
+    owner: "{{ ansible_facts['user_id'] }}"
+    group: "{{ ansible_facts['user_id'] }}"
+    mode: preserve
+- name: Obtain new certificates
+  become: true
+  community.docker.docker_compose_v2:
+    project_src: "{{ config_dir }}/certbot/"
+    recreate: always

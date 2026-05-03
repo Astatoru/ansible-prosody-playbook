@@ -1,0 +1,22 @@
+# vim:ft=yaml.ansible
+---
+- name: Generate secrets for Coturn and PostgreSQL
+  ansible.builtin.set_fact:
+    "{{ item.var }}": "{{ lookup('password', 'credentials/' + inventory_hostname + '/' + item.filename + '.txt length=100 chars=ascii_letters,digits') }}"
+  loop:
+    - { var: "turn_secret", filename: "turn_secret" }
+    - { var: "postgres_password", filename: "postgres_password" }
+- name: "Generate password for {{ username }}@{{ vhost }}"
+  ansible.builtin.set_fact:
+    password: "{{ lookup('password', 'credentials/' + inventory_hostname + '/operator_password.txt length=20 chars=ascii_letters,digits') }}"
+  when:
+    - password is not defined or not password
+- name: Set permissions on credentials files
+  delegate_to: localhost
+  ansible.builtin.file:
+    path: "credentials/{{ inventory_hostname }}/{{ item }}.txt"
+    mode: "0600"
+  loop:
+    - turn_secret
+    - postgres_password
+    - operator_password

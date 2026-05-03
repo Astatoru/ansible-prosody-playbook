@@ -1,0 +1,42 @@
+# vim:ft=yaml.ansible
+---
+- name: Ensure firewalld is running
+  ansible.builtin.systemd:
+    name: firewalld
+    state: started
+    enabled: true
+- name: Open Prosody XMPP ports
+  ansible.posix.firewalld:
+    port: "{{ item.port }}/{{ item.proto }}"
+    permanent: true
+    state: enabled
+  loop:
+    - { port: "{{ c2s_xmpp_port }}", proto: tcp, required: true }
+    - { port: "{{ s2s_xmpp_port }}", proto: tcp, required: "{{ s2s }}" }
+    - { port: "{{ http_server_port }}", proto: tcp, required: true }
+  notify: reload_firewalld
+  when: item.required | bool
+- name: Close Prosody XMPP server-to-server port
+  ansible.posix.firewalld:
+    port: "{{ s2s_xmpp_port }}/tcp"
+    permanent: true
+    state: disabled
+  when: not s2s | bool
+  notify: reload_firewalld
+- name: Open TLS listener port for Coturn
+  ansible.posix.firewalld:
+    port: "{{ turn_port }}/{{ item }}"
+    permanent: true
+    state: enabled
+  loop:
+    - tcp
+    - udp
+  notify: reload_firewalld
+  when: install_coturn | bool
+- name: Open UDP relay endpoints for Coturn
+  ansible.posix.firewalld:
+    port: 49152-65535/udp
+    permanent: true
+    state: enabled
+  notify: reload_firewalld
+  when: install_coturn | bool

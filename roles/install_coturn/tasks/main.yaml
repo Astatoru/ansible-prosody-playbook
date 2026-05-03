@@ -1,0 +1,28 @@
+# vim:ft=yaml.ansible
+---
+- name: Create Coturn directory
+  ansible.builtin.file:
+    path: "{{ config_dir }}/coturn/"
+    owner: "{{ ansible_facts['user_id'] }}"
+    group: "{{ ansible_facts['user_id'] }}"
+    mode: "0755"
+    state: directory
+- name: Copy Coturn docker compose template
+  ansible.builtin.template:
+    src: compose.yaml.j2
+    dest: "{{ config_dir }}/coturn/compose.yaml"
+    owner: "{{ ansible_facts['user_id'] }}"
+    group: "{{ ansible_facts['user_id'] }}"
+    mode: preserve
+- name: Copy turnserver.conf template
+  ansible.builtin.template:
+    src: turnserver.conf.j2
+    dest: "{{ config_dir }}/coturn/turnserver.conf"
+    owner: "{{ ansible_facts['user_id'] }}"
+    group: "{{ ansible_facts['user_id'] }}"
+    mode: "0600"
+- name: Start Coturn
+  become: true
+  community.docker.docker_compose_v2:
+    project_src: "{{ config_dir }}/coturn/"
+    recreate: always

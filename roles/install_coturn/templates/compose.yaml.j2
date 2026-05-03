@@ -1,0 +1,52 @@
+# vim:ft=yaml.docker-compose
+services:
+  coturn:
+    container_name: coturn
+    image: coturn/coturn:alpine
+    read_only: true
+    restart: unless-stopped
+    user: "0:0"
+    network_mode: host
+    volumes:
+      - type: volume
+        source: coturn-config
+        target: /etc/coturn/
+      - type: volume
+        source: coturn-run
+        target: /var/run/
+      - type: bind
+        source: ./turnserver.conf
+        target: /etc/coturn/turnserver.conf
+        read_only: true
+      - type: bind
+        source: /etc/letsencrypt/
+        target: /etc/letsencrypt/
+        read_only: true
+    command:
+      - "--log-file=stdout"
+{% if ansible_facts['default_ipv6']['address'] is defined and ansible_facts['default_ipv6']['address'] %}
+      - "--external-ip=$$(detect-external-ip --ipv6)"
+      - "--relay-ip=$$(detect-external-ip --ipv6)"
+{% else %}
+      - "--external-ip=$$(detect-external-ip)"
+      - "--relay-ip=$$(detect-external-ip)"
+{% endif %}
+    tmpfs:
+      - "/tmp:rw,noexec,nosuid,nodev,noatime,size=1024m"
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "25m"
+        max-file: "3"
+    ulimits:
+      nofile:
+        soft: 1048576
+        hard: 1048576
+
+networks:
+  coturn: {}
+volumes:
+  coturn-config: {}
+  coturn-run: {}
