@@ -28,7 +28,10 @@ pkey=/etc/letsencrypt/live/{{ turn_host.split('.')[-2:] | join('.') }}/privkey.p
 # If no IP(s) specified in the config file or in the command line options,
 # then all IPv4 and IPv6 system IPs will be used for listening.
 #
-listening-ip=::
+listening-ip={{ ansible_facts['default_ipv4']['address'] }}
+{% if ansible_facts['default_ipv6']['address'] is defined and ansible_facts['default_ipv6']['address'] %}
+listening-ip={{ ansible_facts['default_ipv6']['address'] }}
+{% endif %}
 
 # TURN listener port for TLS (Default: 5349).
 # Note: actually, "plain" TCP & UDP sessions can connect to the TLS & DTLS
