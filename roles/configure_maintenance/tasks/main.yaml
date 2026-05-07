@@ -2,29 +2,29 @@
 ---
 - name: Create Certbot directory
   ansible.builtin.file:
-    path: "{{ config_dir }}/certbot/"
-    owner: "{{ ansible_facts['user_id'] }}"
-    group: "{{ ansible_facts['user_id'] }}"
-    mode: "0755"
-    state: directory
+      path: "{{ config_dir }}/certbot/"
+      owner: "{{ ansible_facts['user_id'] }}"
+      group: "{{ ansible_facts['user_id'] }}"
+      mode: "0755"
+      state: directory
 - name: Copy Certbot certificates renewal docker compose
   ansible.builtin.copy:
-    src: compose-renew.yaml
-    dest: "{{ config_dir }}/certbot/compose-renew.yaml"
-    owner: "{{ ansible_facts['user_id'] }}"
-    group: "{{ ansible_facts['user_id'] }}"
-    mode: preserve
+      src: compose-renew.yaml
+      dest: "{{ config_dir }}/certbot/compose-renew.yaml"
+      owner: "{{ ansible_facts['user_id'] }}"
+      group: "{{ ansible_facts['user_id'] }}"
+      mode: preserve
 - name: Copy maintenance bash script template
   ansible.builtin.template:
-    src: maintenance.j2
-    dest: "{{ config_dir }}/maintenance"
-    owner: "{{ ansible_facts['user_id'] }}"
-    group: "{{ ansible_facts['user_id'] }}"
-    mode: "0755"
+      src: maintenance.j2
+      dest: "{{ config_dir }}/maintenance"
+      owner: "{{ ansible_facts['user_id'] }}"
+      group: "{{ ansible_facts['user_id'] }}"
+      mode: "0755"
 - name: Add cronjob for maintenance
   become: true
   ansible.builtin.cron:
-    name: XMPP instance maintenance
-    special_time: weekly
-    job: "/bin/bash {{ config_dir }}/maintenance"
-    user: root
+      name: XMPP instance maintenance
+      special_time: weekly
+      job: "/bin/bash {{ config_dir }}/maintenance"
+      user: root

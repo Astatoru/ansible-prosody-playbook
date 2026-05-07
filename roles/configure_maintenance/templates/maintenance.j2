@@ -1,74 +1,74 @@
 #!/bin/bash
 # vim:ft=bash
 function error() {
-  local MESSAGE="$1"
-  # Check if stderr is in interactive mode
-  if [[ -t 2 ]]; then
-    >&2 printf "%b\n" "\033[01;31mERROR\033[0m: $MESSAGE"
-  else
-    >&2 printf "%s\n" "ERROR: $MESSAGE"
-  fi
-  exit 1
+    local MESSAGE="$1"
+    # Check if stderr is in interactive mode
+    if [[ -t 2 ]]; then
+        >&2 printf "%b\n" "\033[01;31mERROR\033[0m: $MESSAGE"
+    else
+        >&2 printf "%s\n" "ERROR: $MESSAGE"
+    fi
+    exit 1
 }
 
 # Function that displays info messages
 function info() {
-  local MESSAGE="$1"
-  # Check if stdout is in interactive mode
-  if [[ -t 1 ]]; then
-    printf "%b\n" "\033[01;34mINFO\033[0m: $MESSAGE"
-  else
-    printf "%s\n" "INFO: $MESSAGE"
-  fi
+    local MESSAGE="$1"
+    # Check if stdout is in interactive mode
+    if [[ -t 1 ]]; then
+        printf "%b\n" "\033[01;34mINFO\033[0m: $MESSAGE"
+    else
+        printf "%s\n" "INFO: $MESSAGE"
+    fi
 }
 
 # Check if the script is run as root
 function checkRoot() {
-  if ((EUID != 0)); then
-    error "Please run this script as root"
-  fi
+    if ((EUID != 0)); then
+        error "Please run this script as root"
+    fi
 }
 
 # Renew certificates
 function renewCerts() {
-  local CERTBOT_DIR="{{ config_dir }}/certbot"
+    local CERTBOT_DIR="{{ config_dir }}/certbot"
 
-  info "Renewing certificates..."
-  # Run Certbot docker compose and renew certificates
-  docker compose --file "$CERTBOT_DIR/compose-renew.yaml" up --detach
-  info "Certificates renewed successfully"
+    info "Renewing certificates..."
+    # Run Certbot docker compose and renew certificates
+    docker compose --file "$CERTBOT_DIR/compose-renew.yaml" up --detach
+    info "Certificates renewed successfully"
 }
 
 # Update containers
 function updateContainers() {
-  local PROSODY_DIR="{{ config_dir }}/prosody"
-  local COTURN_DIR="{{ config_dir }}/coturn"
+    local PROSODY_DIR="{{ config_dir }}/prosody"
+    local COTURN_DIR="{{ config_dir }}/coturn"
 
-  info "Updating Prosody..."
-  # Rebuild Prosody image
-  docker build --no-cache --file "$PROSODY_DIR/Dockerfile" --tag "prosody:{{ prosody_ver }}" "$PROSODY_DIR"
-  # Update Postgres image
-  docker compose --file "$PROSODY_DIR/compose.yaml" pull postgres
-  # Recreate Prosody container
-  docker compose --file "$PROSODY_DIR/compose.yaml" up --force-recreate --detach
-  info "Prosody successfully updated!"
+    info "Updating Prosody..."
+    # Rebuild Prosody image
+    docker build --no-cache --file "$PROSODY_DIR/Dockerfile" --tag "prosody:{{ prosody_ver }}" "$PROSODY_DIR"
+    # Update Postgres image
+    docker compose --file "$PROSODY_DIR/compose.yaml" pull postgres
+    # Recreate Prosody container
+    docker compose --file "$PROSODY_DIR/compose.yaml" up --force-recreate --detach
+    info "Prosody successfully updated!"
 
-  info "Updating Coturn..."
-  # Update Coturn image
-  docker compose --file "$COTURN_DIR/compose.yaml" pull
-  # Recreate Coturn container
-  docker compose --file "$COTURN_DIR/compose.yaml" up --force-recreate --detach
-  info "Coturn successfully updated!"
+    info "Updating Coturn..."
+    # Update Coturn image
+    docker compose --file "$COTURN_DIR/compose.yaml" pull
+    # Recreate Coturn container
+    docker compose --file "$COTURN_DIR/compose.yaml" up --force-recreate --detach
+    info "Coturn successfully updated!"
 
-  info "Cleaning up..."
-  # Remove unnecessary things
-  docker system prune --all --force
+    info "Cleaning up..."
+    # Remove unnecessary things
+    docker system prune --all --force
 }
 
 function main() {
-  checkRoot
-  renewCerts
-  updateContainers
+    checkRoot
+    renewCerts
+    updateContainers
 }
 
 # Stop script execution immediately

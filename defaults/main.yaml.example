@@ -29,13 +29,13 @@ invite_only: true
 # Welcome message that is sent to new users
 # Leave this variable empty or comment it out to disable
 welcome_message: |-
-  Welcome, $$username! You're now part of the $$host XMPP instance. We’ll use this chat to keep you informed about important technical updates and server maintenance.
+    Welcome, $$username! You're now part of the $$host XMPP instance. We’ll use this chat to keep you informed about important technical updates and server maintenance.
 
-  Need help? The instance operator is always available at xmpp:${OPERATOR}. Enjoy!
+    Need help? The instance operator is always available at xmpp:${OPERATOR}. Enjoy!
 # Message that is sent to server operator when new user is registered
 # Leave this variable empty or comment it out to disable
 registration_message: |-
-  User $$username registered on $$host with IP address $$ip
+    User $$username registered on $$host with IP address $$ip
 # Ports on which Prosody will listen for XMPP over TLS client connections
 c2s_xmpp_port: 5223
 # Ports on which Prosody will listen for XMPP over TLS server-to-server connections

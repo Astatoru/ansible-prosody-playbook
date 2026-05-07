@@ -23,7 +23,7 @@
 -- (see https://prosody.im/doc/creating_accounts for info)
 -- Example: admins = { "user1@example.com", "user2@example.net" }
 admins = {
-  ENV_OPERATOR;
+    ENV_OPERATOR;
 }
 
 -- This option allows you to specify additional locations where Prosody
@@ -105,7 +105,7 @@ modules_disabled = {
 }
 -- Toggle server-to-server connections
 if not ENV_S2S then
-  Lua.table.insert(modules_disabled, "s2s")
+    Lua.table.insert(modules_disabled, "s2s")
 end
 
 ---------- Network ----------
@@ -122,7 +122,7 @@ s2s_direct_tls_ports = ENV_S2S_XMPP_PORT
 
 -- Ports on which builtin HTTP(s) server will listen
 https_ports = {
-  ENV_HTTP_SERVER_PORT;
+    ENV_HTTP_SERVER_PORT;
 }
 
 -- Server's IP addresses
@@ -143,35 +143,35 @@ end
 -- specify the details here so clients can discover it.
 -- Find more information at https://prosody.im/doc/turn
 if ENV_TURN_HOST and ENV_TURN_HOST ~= "" then
-  -- Specify the address of the TURN service (you may use the same domain as XMPP)
-  turn_external_host = ENV_TURN_HOST
-  -- TURN service port
-  turn_external_port = ENV_TURN_PORT
-  -- This secret must be set to the same value in both Prosody and the TURN server
-  turn_external_secret = ENV_TURN_SECRET
+    -- Specify the address of the TURN service (you may use the same domain as XMPP)
+    turn_external_host = ENV_TURN_HOST
+    -- TURN service port
+    turn_external_port = ENV_TURN_PORT
+    -- This secret must be set to the same value in both Prosody and the TURN server
+    turn_external_secret = ENV_TURN_SECRET
 end
 
 -- Rate limits
 -- Enable rate limits for incoming client and server connections. These help
 -- protect from excessive resource consumption and denial-of-service attacks.
 limits = {
-  c2s = {
-    rate = "10kb/s";
-  };
-  s2sin = {
-    rate = "30kb/s";
-  };
+    c2s = {
+        rate = "10kb/s";
+    };
+    s2sin = {
+        rate = "30kb/s";
+    };
 }
 
 ---------- Users ----------
 
 -- Toggle registration
 if ENV_ALLOW_REGISTRATION then
-  allow_registration = ENV_ALLOW_REGISTRATION
+    allow_registration = ENV_ALLOW_REGISTRATION
 elseif not ENV_ALLOW_REGISTRATION then
-  allow_registration = ENV_ALLOW_REGISTRATION
+    allow_registration = ENV_ALLOW_REGISTRATION
 else
-  allow_registration = false
+    allow_registration = false
 end
 
 -- Registration per-IP rate limit
@@ -179,35 +179,35 @@ min_seconds_between_registrations = 3600
 
 -- Toggle invite only registration
 if ENV_INVITE_ONLY then
-  registration_invite_only = ENV_INVITE_ONLY
+    registration_invite_only = ENV_INVITE_ONLY
 elseif not ENV_INVITE_ONLY then
-  registration_invite_only = ENV_INVITE_ONLY
+    registration_invite_only = ENV_INVITE_ONLY
 else
-  registration_invite_only = false
+    registration_invite_only = false
 end
 
 -- Welcome message for the newly registered users
 if ENV_WELCOME_MESSAGE and ENV_WELCOME_MESSAGE ~= "" then
-  welcome_message = ENV_WELCOME_MESSAGE
+    welcome_message = ENV_WELCOME_MESSAGE
 end
 
 -- Message about new registrations that is sent to admins
 if ENV_REGISTRATION_MESSAGE and ENV_REGISTRATION_MESSAGE ~= "" then
-  registration_notification = ENV_REGISTRATION_MESSAGE
+    registration_notification = ENV_REGISTRATION_MESSAGE
 end
 
 -- A list of reserved usernames
 block_registrations_users = {
-  "operator";
-  "administrator";
-  "admin";
-  "root";
-  "postmaster";
-  "xmpp";
-  "jabber";
-  "contact";
-  "mail";
-  "abuse";
+    "operator";
+    "administrator";
+    "admin";
+    "root";
+    "postmaster";
+    "xmpp";
+    "jabber";
+    "contact";
+    "mail";
+    "abuse";
 }
 -- Allow only simple ASCII characters in usernames
 block_registrations_require = "^[a-zA-Z0-9_.-]+$"
@@ -218,7 +218,7 @@ block_registrations_length_maximum=23
 
 -- Firewall ruleset files
 firewall_scripts = {
-  "/etc/prosody/ruleset.pfw";
+    "/etc/prosody/ruleset.pfw";
 }
 
 ---------- Security ----------
@@ -275,21 +275,21 @@ authentication = "internal_hashed"
 -- additional dependencies. See https://prosody.im/doc/storage for more info.
 storage = "sql" -- Default is "internal"
 sql = {
-  driver = "PostgreSQL";
-  database = ENV_POSTGRES_DB;
-  username = ENV_POSTGRES_USER;
-  password = ENV_POSTGRES_PASSWORD;
-  host = "postgres";
-  port = 5432
+    driver = "PostgreSQL";
+    database = ENV_POSTGRES_DB;
+    username = ENV_POSTGRES_USER;
+    password = ENV_POSTGRES_PASSWORD;
+    host = "postgres";
+    port = 5432
 }
 
 -- Logging configuration
 -- For advanced logging see https://prosody.im/doc/logging
 log = {
-  info = "/var/log/prosody/prosody.log"; -- Change 'info' to 'debug' for verbose logging
-  error = "/var/log/prosody/prosody.err";
-  -- "*syslog"; -- Uncomment this for logging to syslog
-  -- "*console"; -- Log to the console, useful for debugging when running in the foreground
+    info = "/var/log/prosody/prosody.log"; -- Change 'info' to 'debug' for verbose logging
+    error = "/var/log/prosody/prosody.err";
+    -- "*syslog"; -- Uncomment this for logging to syslog
+    -- "*console"; -- Log to the console, useful for debugging when running in the foreground
 }
 
 -- Uncomment to enable statistics
@@ -320,20 +320,20 @@ VirtualHost (ENV_VHOST)
 
 ---Set up a MUC (multi-user chat) room server
 if ENV_MUC_HOST and ENV_MUC_HOST ~= "" then
-  Component (ENV_MUC_HOST) "muc"
+    Component (ENV_MUC_HOST) "muc"
     -- Restrict room creation to users on the service’s parent domain
     restrict_room_creation = "local"
     --- Store MUC messages in an archive and allow users to access it
     modules_enabled = {
-      "muc_mam";
-      "mam";
-      "muc_limits";
+        "muc_mam";
+        "mam";
+        "muc_limits";
     }
 end
 
 ---Set up a file sharing component
 if ENV_UPLOAD_HOST and ENV_UPLOAD_HOST ~= "" then
-  Component (ENV_UPLOAD_HOST) "http_file_share"
+    Component (ENV_UPLOAD_HOST) "http_file_share"
     -- File sharing quotas
     http_file_share_size_limit = 100*1024*1024 -- 100 MiB per file
     http_file_share_daily_quota = 500*1024*1024 -- 500 MiB per day
@@ -343,7 +343,7 @@ if ENV_UPLOAD_HOST and ENV_UPLOAD_HOST ~= "" then
     -- connections (s2s), because this service is
     -- only for local users anyway
     modules_disabled = {
-      "s2s";
+         "s2s";
     }
 end
 

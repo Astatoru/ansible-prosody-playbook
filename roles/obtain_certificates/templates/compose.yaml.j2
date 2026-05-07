@@ -1,66 +1,66 @@
 # vim:ft=yaml.docker-compose
 services:
-  certbot:
-    image: certbot/certbot:latest
-    container_name: certbot
-    read_only: true
-    networks:
-      - certbot
-    ports:
-      - 80:80
-    volumes:
-      - type: bind
-        source: /etc/letsencrypt/
-        target: /etc/letsencrypt/
-      - type: bind
-        source: /var/log/letsencrypt/
-        target: /var/log/letsencrypt/
-      - type: volume
-        source: certbot
-        target: /var/lib/letsencrypt/
-    command:
-      - certonly
-      - --standalone
-      - --non-interactive
-      - --agree-tos
-      - --expand
+    certbot:
+        image: certbot/certbot:latest
+        container_name: certbot
+        read_only: true
+        networks:
+            - certbot
+        ports:
+            - 80:80
+        volumes:
+            - type: bind
+              source: /etc/letsencrypt/
+              target: /etc/letsencrypt/
+            - type: bind
+              source: /var/log/letsencrypt/
+              target: /var/log/letsencrypt/
+            - type: volume
+              source: certbot
+              target: /var/lib/letsencrypt/
+        command:
+            - certonly
+            - --standalone
+            - --non-interactive
+            - --agree-tos
+            - --expand
 {% if email is defined and email %}
-      - --email "{{ email }}"
-      - --no-eff-email
+            - --email "{{ email }}"
+            - --no-eff-email
 {% else %}
-      - --register-unsafely-without-email
+            - --register-unsafely-without-email
 {% endif %}
-      - -d ${VHOST}
+            - -d ${VHOST}
 {% if muc_host is defined and muc_host %}
-      - -d ${MUC_HOST}
+            - -d ${MUC_HOST}
 {% else %}
-      # - -d ${MUC_HOST}
+            # - -d ${MUC_HOST}
 {% endif %}
 {% if upload_host is defined and upload_host %}
-      - -d ${UPLOAD_HOST}
+            - -d ${UPLOAD_HOST}
 {% else %}
-      # - -d ${UPLOAD_HOST}
+            # - -d ${UPLOAD_HOST}
 {% endif %}
 {% if install_coturn | bool %}
-      - -d ${TURN_HOST}
+            - -d ${TURN_HOST}
 {% else %}
-      # - -d ${TURN_HOST}
+            # - -d ${TURN_HOST}
 {% endif %}
-    ulimits:
-      nofile:
-        soft: 1048576
-        hard: 1048576
-    tmpfs:
-      - "/tmp:rw,noexec,nosuid,nodev,noatime,size=1024m"
-    security_opt:
-      - no-new-privileges:true
-    logging:
-      driver: json-file
-      options:
-        max-size: "25m"
-        max-file: "3"
+        ulimits:
+            nofile:
+                soft: 1048576
+                hard: 1048576
+        tmpfs:
+            - "/tmp:rw,noexec,nosuid,nodev,noatime,size=1024m"
+        security_opt:
+            - no-new-privileges:true
+        logging:
+            driver: json-file
+            options:
+                max-size: "25m"
+                max-file: "3"
 
 networks:
-  certbot: {}
+    certbot: {}
 volumes:
-  certbot: {}
+    certbot: {}

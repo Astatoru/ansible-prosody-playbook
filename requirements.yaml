@@ -1,5 +1,5 @@
 # vim:ft=yaml.ansible
 ---
 collections:
-  - ansible.posix
-  - community.docker
+    - ansible.posix
+    - community.docker

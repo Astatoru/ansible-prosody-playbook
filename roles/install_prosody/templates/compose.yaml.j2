@@ -1,96 +1,96 @@
 # vim:ft=yaml.docker-compose
 x-common: &common
-  ulimits:
-    nofile:
-      soft: 1048576
-      hard: 1048576
-  env_file: .env
+    ulimits:
+        nofile:
+            soft: 1048576
+            hard: 1048576
+    env_file: .env
 
 x-security: &security
-  tmpfs:
-    - "/tmp:rw,noexec,nosuid,nodev,noatime,size=1024m"
-  security_opt:
-    - no-new-privileges:true
-  logging:
-    driver: json-file
-    options:
-      max-size: "25m"
-      max-file: "3"
+    tmpfs:
+        - "/tmp:rw,noexec,nosuid,nodev,noatime,size=1024m"
+    security_opt:
+        - no-new-privileges:true
+    logging:
+        driver: json-file
+        options:
+            max-size: "25m"
+            max-file: "3"
 
 services:
-  prosody:
-    container_name: prosody
-    image: prosody/prosody:{{ prosody_ver }}
-    build:
-      context: .
-      dockerfile: Dockerfile
-    read_only: true
-    restart: unless-stopped
-    networks:
-      - prosody
-    ports:
-      - ${C2S_XMPP_PORT}:${C2S_XMPP_PORT}
-{% if s2s | bool  %}
-      - ${S2S_XMPP_PORT}:${S2S_XMPP_PORT}
-{% else %}
-      # - ${S2S_XMPP_PORT}:${S2S_XMPP_PORT}
-{% endif %}
-      - ${HTTP_SERVER_PORT}:${HTTP_SERVER_PORT}
-    volumes:
-      - type: volume
-        source: prosody-config
-        target: /etc/prosody/
-      - type: volume
-        source: prosody-data
-        target: /var/lib/prosody/
-      - type: volume
-        source: prosody-run
-        target: /var/run/prosody/
-      - type: bind
-        source: ./prosody.cfg.lua
-        target: /etc/prosody/prosody.cfg.lua
-      - type: bind
-        source: ./ruleset.pfw
-        target: /etc/prosody/ruleset.pfw
-      - type: bind
-        source: /etc/letsencrypt/
-        target: /etc/letsencrypt/
+    prosody:
+        container_name: prosody
+        image: prosody/prosody:{{ prosody_ver }}
+        build:
+            context: .
+            dockerfile: Dockerfile
         read_only: true
-    depends_on:
-      postgres:
-        condition: service_healthy
-    <<: [*common, *security]
+        restart: unless-stopped
+        networks:
+            - prosody
+        ports:
+            - ${C2S_XMPP_PORT}:${C2S_XMPP_PORT}
+{% if s2s | bool  %}
+            - ${S2S_XMPP_PORT}:${S2S_XMPP_PORT}
+{% else %}
+            # - ${S2S_XMPP_PORT}:${S2S_XMPP_PORT}
+{% endif %}
+            - ${HTTP_SERVER_PORT}:${HTTP_SERVER_PORT}
+        volumes:
+            - type: volume
+              source: prosody-config
+              target: /etc/prosody/
+            - type: volume
+              source: prosody-data
+              target: /var/lib/prosody/
+            - type: volume
+              source: prosody-run
+              target: /var/run/prosody/
+            - type: bind
+              source: ./prosody.cfg.lua
+              target: /etc/prosody/prosody.cfg.lua
+            - type: bind
+              source: ./ruleset.pfw
+              target: /etc/prosody/ruleset.pfw
+            - type: bind
+              source: /etc/letsencrypt/
+              target: /etc/letsencrypt/
+              read_only: true
+        depends_on:
+            postgres:
+                condition: service_healthy
+        <<: [*common, *security]
 
   postgres:
-    container_name: postgres
-    image: postgres:{{ postgres_ver }}-alpine
-    read_only: true
-    restart: unless-stopped
-    networks:
-      - prosody
-    volumes:
-      - type: volume
-        source: postgres-run
-        target: /var/run/postgresql/
-      - type: volume
-        source: postgres-data
-        target: /var/lib/postgresql/
-    environment:
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
-      interval: 3s
-      timeout: 10s
-      retries: 3
-    <<: [*common, *security]
+      container_name: postgres
+      image: postgres:{{ postgres_ver }}-alpine
+      read_only: true
+      restart: unless-stopped
+      networks:
+          - prosody
+      volumes:
+          - type: volume
+            source: postgres-run
+            target: /var/run/postgresql/
+          - type: volume
+            source: postgres-data
+            target: /var/lib/postgresql/
+      environment:
+          - POSTGRES_DB=${POSTGRES_DB}
+          - POSTGRES_USER=${POSTGRES_USER}
+          - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      healthcheck:
+          test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
+          interval: 3s
+          timeout: 10s
+          retries: 3
+      <<: [*common, *security]
 
 networks:
-  prosody: {}
+    prosody: {}
 volumes:
-  prosody-config: {}
-  prosody-data: {}
-  prosody-run: {}
-  postgres-run: {}
-  postgres-data: {}
+    prosody-config: {}
+    prosody-data: {}
+    prosody-run: {}
+    postgres-run: {}
+    postgres-data: {}

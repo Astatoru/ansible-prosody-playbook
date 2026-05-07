@@ -1,5 +1,5 @@
 # vim:ft=yaml
 nodes_example:
-  hosts:
-    node_example:
-      ansible_host: 127.0.0.1
+    hosts:
+        node_example:
+            ansible_host: 127.0.0.1

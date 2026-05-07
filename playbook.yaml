@@ -6,29 +6,29 @@
   gather_facts: true
   vars_files: defaults/main.yaml
   tasks:
-    - name: Generate credentials
-      ansible.builtin.include_role:
-        name: generate_credentials
-    - name: Obtain certificates with Certbot
-      ansible.builtin.include_role:
-        name: obtain_certificates
-      when:
-        - obtain_certificates | bool
-    - name: Configure Prosody
-      ansible.builtin.include_role:
-        name: install_prosody
-    - name: Configure Coturn
-      ansible.builtin.include_role:
-        name: install_coturn
-      when:
-        - install_coturn | bool
-    - name: Configure firewalld
-      ansible.builtin.include_role:
-        name: configure_firewalld
-        apply:
-          become: true
-      when:
-        - configure_firewalld | bool
-    - name: Configure maintenance for services
-      ansible.builtin.include_role:
-        name: configure_maintenance
+      - name: Generate credentials
+        ansible.builtin.include_role:
+            name: generate_credentials
+      - name: Obtain certificates with Certbot
+        ansible.builtin.include_role:
+            name: obtain_certificates
+        when:
+            - obtain_certificates | bool
+      - name: Configure Prosody
+        ansible.builtin.include_role:
+            name: install_prosody
+      - name: Configure Coturn
+        ansible.builtin.include_role:
+            name: install_coturn
+        when:
+            - install_coturn | bool
+      - name: Configure firewalld
+        ansible.builtin.include_role:
+            name: configure_firewalld
+            apply:
+                become: true
+        when:
+            - configure_firewalld | bool
+      - name: Configure maintenance for services
+        ansible.builtin.include_role:
+            name: configure_maintenance

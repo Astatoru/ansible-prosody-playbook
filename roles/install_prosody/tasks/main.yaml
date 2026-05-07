@@ -2,35 +2,35 @@
 ---
 - name: Copy Prosody docker build files
   ansible.builtin.copy:
-    src: prosody/
-    dest: "{{ config_dir }}/prosody/"
-    owner: "{{ ansible_facts['user_id'] }}"
-    group: "{{ ansible_facts['user_id'] }}"
-    mode: preserve
+      src: prosody/
+      dest: "{{ config_dir }}/prosody/"
+      owner: "{{ ansible_facts['user_id'] }}"
+      group: "{{ ansible_facts['user_id'] }}"
+      mode: preserve
 - name: Copy Prosody docker compose template
   ansible.builtin.template:
-    src: compose.yaml.j2
-    dest: "{{ config_dir }}/prosody/compose.yaml"
-    owner: "{{ ansible_facts['user_id'] }}"
-    group: "{{ ansible_facts['user_id'] }}"
-    mode: "0644"
+      src: compose.yaml.j2
+      dest: "{{ config_dir }}/prosody/compose.yaml"
+      owner: "{{ ansible_facts['user_id'] }}"
+      group: "{{ ansible_facts['user_id'] }}"
+      mode: "0644"
 - name: Copy Prosody dockerfile template
   ansible.builtin.template:
-    src: Dockerfile.j2
-    dest: "{{ config_dir }}/prosody/Dockerfile"
-    owner: "{{ ansible_facts['user_id'] }}"
-    group: "{{ ansible_facts['user_id'] }}"
-    mode: "0644"
+      src: Dockerfile.j2
+      dest: "{{ config_dir }}/prosody/Dockerfile"
+      owner: "{{ ansible_facts['user_id'] }}"
+      group: "{{ ansible_facts['user_id'] }}"
+      mode: "0644"
 - name: Copy .env template
   ansible.builtin.template:
-    src: .env.j2
-    dest: "{{ config_dir }}/prosody/.env"
-    owner: "{{ ansible_facts['user_id'] }}"
-    group: "{{ ansible_facts['user_id'] }}"
-    mode: "0600"
+      src: .env.j2
+      dest: "{{ config_dir }}/prosody/.env"
+      owner: "{{ ansible_facts['user_id'] }}"
+      group: "{{ ansible_facts['user_id'] }}"
+      mode: "0600"
 - name: Start Prosody
   become: true
   community.docker.docker_compose_v2:
-    project_src: "{{ config_dir }}/prosody/"
-    build: always
-    recreate: always
+      project_src: "{{ config_dir }}/prosody/"
+      build: always
+      recreate: always

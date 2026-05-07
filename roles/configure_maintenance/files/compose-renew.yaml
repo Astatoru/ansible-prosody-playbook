@@ -1,40 +1,40 @@
 # vim:ft=yaml.docker-compose
 services:
-  certbot:
-    image: certbot/certbot:latest
-    container_name: certbot
-    read_only: true
-    networks:
-      - certbot
-    ports:
-      - 80:80
-    volumes:
-      - type: bind
-        source: /etc/letsencrypt/
-        target: /etc/letsencrypt/
-      - type: bind
-        source: /var/log/letsencrypt/
-        target: /var/log/letsencrypt/
-      - type: volume
-        source: certbot
-        target: /var/lib/letsencrypt/
-    command:
-      - renew
-    ulimits:
-      nofile:
-        soft: 1048576
-        hard: 1048576
-    tmpfs:
-      - "/tmp:rw,noexec,nosuid,nodev,noatime,size=1024m"
-    security_opt:
-      - no-new-privileges:true
-    logging:
-      driver: json-file
-      options:
-        max-size: "25m"
-        max-file: "3"
+    certbot:
+        image: certbot/certbot:latest
+        container_name: certbot
+        read_only: true
+        networks:
+            - certbot
+        ports:
+            - 80:80
+        volumes:
+            - type: bind
+              source: /etc/letsencrypt/
+              target: /etc/letsencrypt/
+            - type: bind
+              source: /var/log/letsencrypt/
+              target: /var/log/letsencrypt/
+            - type: volume
+              source: certbot
+              target: /var/lib/letsencrypt/
+        command:
+            - renew
+        ulimits:
+            nofile:
+                soft: 1048576
+                hard: 1048576
+        tmpfs:
+            - "/tmp:rw,noexec,nosuid,nodev,noatime,size=1024m"
+        security_opt:
+            - no-new-privileges:true
+        logging:
+            driver: json-file
+            options:
+                max-size: "25m"
+                max-file: "3"
 
 networks:
-  certbot: {}
+    certbot: {}
 volumes:
-  certbot: {}
+    certbot: {}
